@@ -70,8 +70,15 @@ class VideoSearchEngine:
 
         inputs = self.clip_processor(text=[text], return_tensors="pt", padding=True).to(self.device)
         text_features = self.clip_model.get_text_features(**inputs)
-        text_features = F.normalize(text_features, p=2, dim=1)
-        return text_features.cpu().numpy().astype(np.float32)
+        if hasattr(text_features, "pooler_output") and text_features.pooler_output is not None:
+            text_features = text_features.pooler_output
+        elif hasattr(text_features, "text_embeds"):
+            text_features = text_features.text_embeds
+        elif isinstance(text_features, (tuple, list)):
+            text_features = text_features[0]
+        text_features = F.normalize(text_features, p=2, dim=-1)
+        arr = text_features.cpu().numpy().astype(np.float32)
+        return arr.reshape(1, -1)
 
     def search_by_text(self, text_query: str, top_k: int = 5) -> List[Dict[str, Any]]:
         """

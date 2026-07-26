@@ -54,7 +54,13 @@ class DualFeatureExtractor:
         if self.clip_model is not None:
             clip_inputs = self.clip_processor(images=pil_images, return_tensors="pt").to(self.device)
             clip_features = self.clip_model.get_image_features(**clip_inputs)
-            clip_features = F.normalize(clip_features, p=2, dim=1)
+            if hasattr(clip_features, "pooler_output") and clip_features.pooler_output is not None:
+                clip_features = clip_features.pooler_output
+            elif hasattr(clip_features, "image_embeds"):
+                clip_features = clip_features.image_embeds
+            elif isinstance(clip_features, (tuple, list)):
+                clip_features = clip_features[0]
+            clip_features = F.normalize(clip_features, p=2, dim=-1)
             clip_vectors = clip_features.cpu().numpy().astype(np.float32)
         else:
             # Fallback mock random normalized vectors (512-dim)
