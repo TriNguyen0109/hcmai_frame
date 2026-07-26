@@ -1,0 +1,14 @@
+tensorflow>=2.10.0
+torch>=2.0.0
+torchvision
+transformers>=4.30.0
+open_clip_torch
+faiss-cpu
+opencv-python-headless
+pillow
+numpy
+scipy
+tqdm
+ffmpeg-python
+gin-config
+pandas

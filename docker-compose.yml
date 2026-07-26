@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  video-indexer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: video-indexing-baseline:latest
+    container_name: video_indexing_container
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ./:/app/data
+      - ./storage:/app/storage
+    command: ["--video", "/app/data/K01_V001.mp4", "--output_dir", "/app/storage", "--device", "cuda"]
